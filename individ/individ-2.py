@@ -1,129 +1,49 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-"""
-Карточка иностранного слова представляет собой словарейу, содержащую иностранное
-слово и его перевод. Для моделирования электронного словаря иностранных слов
-реализовать класс Dictionary. Данный класс имеет поле-название словаря и содержит
-список словарей WordCard, представляющих собой карточки иностранного слова. Название
-словаря задается при создании нового словаря, но должна быть предоставлена
-возможность его изменения во время работы. Карточки добавляются в словарь и удаляются
-из него. Реализовать поиск определенного слова как отдельный метод. Аргументом
-операции индексирования должно быть иностранное слово. В словаре не должно быть
-карточек-дублей. Реализовать операции объединения, пересечения и вычитания словарей.
-При реализации должен создаваться новый словарь, а исходные словари не должны
-изменяться. При объединении новый словарь должен содержать без повторений все слова,
-содержащиеся в обоих словарях-операндах. При пересечении новый словарь должен
-состоять только из тех слов, которые имеются в обоих словарях-операндах. При вычитании
-новый словарь должен содержать слова первого словаря-операнда, отсутствующие во втором.
-"""
+class Money:
+    MAX_SIZE = 10  # Максимально возможный размер списка
 
+    def __init__(self):
+        self.bills = []  # Список словарей для хранения номиналов и количества купюр
+        self.size = Money.MAX_SIZE  # Максимальное количество элементов списка
+        self.count = 0  # Текущее количество элементов в списке
 
-class WordCard:
-    def __init__(self, foreign_word, translation):
-        self.foreign_word = foreign_word
-        self.translation = translation
-
-    def __repr__(self):
-        return f"{self.foreign_word}: {self.translation}"
-
-    def __eq__(self, other):
-        return isinstance(other, WordCard) and self.foreign_word == other.foreign_word
-
-    def __hash__(self):
-        return hash(self.foreign_word)
-
-
-class Dictionary:
-    MAX_SIZE = 10
-
-    def __init__(self, name):
-        self.name = name
-        self.word_cards = []
-        self.size = Dictionary.MAX_SIZE
-        self.count = 0
-
-    def size(self):
-        return self.size  # Возвращает максимальный размер словаря
-
-    # Создание новой карточки
-    def add_word_card(self, word_card):
+    def add_bill(self, denomination, quantity):
         if self.count < self.size:
-            if word_card not in self.word_cards:
-                self.word_cards.append(word_card)
-                self.count += 1  #
-                print(f"Добавлена карточка: {word_card}")
-            else:
-                print("Карточка с таким словом уже существует в словаре.")
+            for bill in self.bills:
+                if bill["denomination"] == denomination:
+                    bill["quantity"] += quantity
+                    print(f"Уже существует купюра номиналом {denomination}, обновлено количество.")
+                    return
+            self.bills.append({"denomination": denomination, "quantity": quantity})
+            self.bills.sort(key=lambda x: x["denomination"])  # Сортировка списка словарей по номиналу
+            self.count += 1
+            print(f"Добавлена купюра номиналом {denomination}, количество: {quantity}.")
         else:
-            print("Невозможно добавить больше карточек. Достигнут максимальный размер словаря.")
+            print("Достигнут максимальный размер списка, добавление невозможно.")
 
-    # Удаление карточки
-    def remove_word_card(self, word_card):
-        if word_card in self.word_cards:
-            self.word_cards.remove(word_card)
-            self.count -= 1
-            print(f"Карточка с словом '{word_card.foreign_word}' удалена из словаря.")
-        else:
-            print(f"Карточка с словом '{word_card.foreign_word}' не найдена в словаре.")
-
-    def __getitem__(self, foreign_word):
-        for card in self.word_cards:
-            if card.foreign_word == foreign_word:
-                return card
-        return None
+    def __getitem__(self, denomination):
+        for bill in self.bills:
+            if bill["denomination"] == denomination:
+                return bill["quantity"]
+        return 0  # Возвращаем 0, если купюра данного номинала отсутствует
 
     def __repr__(self):
-        return f"Dictionary '{self.name}': {self.word_cards}"
+        return f"Money: {self.bills}"
 
-    def union(dict1, dict2):
-        new_dict = Dictionary(name=f"{dict1.name}_{dict2.name}_union")
-        new_dict.word_cards = list(set(dict1.word_cards + dict2.word_cards))
-        return new_dict
-
-    def intersection(dict1, dict2):
-        new_dict = Dictionary(name=f"{dict1.name}_{dict2.name}_intersection")
-        new_dict.word_cards = [card for card in dict1.word_cards if card in dict2.word_cards]
-        return new_dict
-
-    def difference(dict1, dict2):
-        new_dict = Dictionary(name=f"{dict1.name}_{dict2.name}_difference")
-        new_dict.word_cards = [card for card in dict1.word_cards if card not in dict2.word_cards]
-        return new_dict
-
+    def current_size(self):
+        return self.count  # Возвращает текущее количество элементов в списке
 
 if __name__ == "__main__":
-    # Словарь 1
-    dict1 = Dictionary(name="English-Russian")
-    dict1.add_word_card(WordCard("hello", "привет"))
-    dict1.add_word_card(WordCard("world", "мир"))
+    my_money = Money()
+    my_money.add_bill("100", 5)
+    my_money.add_bill("500", 2)
+    my_money.add_bill("100", 3)  # Должно обновить количество купюр номиналом 100
 
-    # Добавление и удаление карточки
-    dict1.add_word_card(WordCard("car", "машина"))
-    dict1.remove_word_card(WordCard("car", "машина"))
+    print(my_money)
 
-    # Ссловарь 2
-    dict2 = Dictionary(name="English-French")
-    dict2.add_word_card(WordCard("hello", "привет"))
-    dict2.add_word_card(WordCard("cat", "кошка"))
-    dict2.add_word_card(WordCard("dog", "собака"))
+    print(f"Количество купюр номиналом 100: {my_money['100']}")
+    print(f"Количество купюр номиналом 1000: {my_money['1000']}")  # Должно вернуть 0, так как таких купюр нет
 
-    # Вывод содержимого словарей
-    print("Словарь 1:")
-    print(dict1)
-
-    print("\nСловарь 2:")
-    print(dict2)
-
-    # Операции над словарями
-    union = Dictionary.union(dict1, dict2)
-    print("\nОбъединение словарей:")
-    print(union)
-
-    intersection = Dictionary.intersection(dict1, dict2)
-    print("\nПересечение словарей:")
-    print(intersection)
-
-    difference = Dictionary.difference(dict1, dict2)
-    print("\nВычитание словарей:")
-    print(difference)
+    print(f"Текущее количество элементов в списке: {my_money.current_size()}")
